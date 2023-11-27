@@ -53,6 +53,7 @@ elseif(APPLE)
   #string(REGEX REPLACE "(\r?\n)+$" "" CMAKE_OSX_SYSROOT "${CMAKE_OSX_SYSROOT}")
   #string(REGEX REPLACE "^.*X([0-9.]*).sdk$" "\\1" CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_OSX_SYSROOT}")
 endif()
+add_compile_options(-fPIC)
 
 # Enable C++11 mode on GCC / Clang
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
@@ -77,6 +78,10 @@ set(TBB_BUILD_TESTS OFF CACHE BOOL " " FORCE)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/tbb ext_build/tbb)
 set_property(TARGET tbb_static tbb_def_files PROPERTY FOLDER "dependencies")
+
+# pybind11
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/pybind11)
+
 
 # Compile instant meshes with various compiler warnings turned on
 if(MSVC)
@@ -147,12 +152,13 @@ elseif(WIN32)
   set(EXTRA_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/resources/im.rc")
 endif()
 
-add_executable(InstantMeshes MACOSX_BUNDLE
+# add_executable(InstantMeshes MACOSX_BUNDLE
+pybind11_add_module(InstantMeshes
   resources.cpp
   src/glutil.h src/glutil.cpp
   src/widgets.h src/widgets.cpp
   src/aabb.h
-  src/main.cpp src/common.h
+  src/interface.cpp src/common.h
   src/meshio.h src/meshio.cpp
   src/normal.h src/normal.cpp
   src/adjacency.h src/adjacency.cpp
@@ -175,7 +181,7 @@ add_executable(InstantMeshes MACOSX_BUNDLE
 add_definitions(${NANOGUI_EXTRA_DEFS})
 target_link_libraries(InstantMeshes tbb_static nanogui ${NANOGUI_EXTRA_LIBS})
 
-set_target_properties(InstantMeshes PROPERTIES OUTPUT_NAME "Instant Meshes")
+set_target_properties(InstantMeshes PROPERTIES OUTPUT_NAME "InstantMeshes")
 
 if (WIN32)
   # Quench some warnings on MSVC
@@ -184,7 +190,7 @@ if (WIN32)
   endif()
 elseif (APPLE)
   # Build an application bundle on OSX
-  set_target_properties(InstantMeshes PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Instant Meshes")
+  set_target_properties(InstantMeshes PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "InstantMeshes")
   set_target_properties(InstantMeshes PROPERTIES MACOSX_BUNDLE_BUNDLE_GUI_IDENTIFIER "com.im.InstantMeshes")
   set_target_properties(InstantMeshes PROPERTIES MACOSX_BUNDLE_ICON_FILE im.icns)
   set_target_properties(InstantMeshes PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/MacOSXBundleInfo.plist.in)
