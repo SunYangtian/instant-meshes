@@ -13,3 +13,5 @@
 [submodule "ext/pss"]
 	path = ext/pss
 	url = https://github.com/wjakob/pss
+[submodule "ext/pybind11"]
+	url = https://github.com/pybind/pybind11.git
